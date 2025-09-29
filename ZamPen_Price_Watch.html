@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ZAMPEN PRICE WATCH</title>
+  <style>
+    :root { --da-green: #0b6623; --light-yellow: #e0dba6; }
+    body { margin: 0; font-family: Arial, sans-serif; background: #fff; }
+    .top-strip { background-color: var(--da-green); height: 6px; width: 100%; }
+    .yellow-strip { background-color: var(--light-yellow); height: 6px; width: 100%; }
+    .header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px 30px; }
+    .header-left { display: flex; align-items: center; gap: 15px; }
+    .header-left img { height: 60px; }
+    .address { margin-left: 15px; color: #000; font-size: 14px; line-height: 1.4; }
+    .address strong { font-size: 16px; }
+    .header-right { display: flex; align-items: center; }
+    .search-box input { padding: 6px 10px; border: 2px solid var(--da-green); border-radius: 4px 0 0 4px; outline: none; }
+    .search-box button { padding: 6px 12px; border: 2px solid var(--da-green); background: var(--da-green); color: white; border-radius: 0 4px 4px 0; cursor: pointer; font-weight: bold; }
+    .search-box input:focus, .search-box button:hover { box-shadow: 0 0 6px rgba(11,102,35,0.6); }
+    .title-bar { background: var(--light-yellow); text-align: center; min-height: 44px; display: flex; align-items: center; justify-content: center; }
+    .title-bar h1 { margin: 0; font-size: 22px; color: #000; font-weight: 900; letter-spacing: 1px; }
+    .navbar { display: flex; justify-content: flex-end; align-items: center; background-color: var(--da-green); box-shadow: 0 2px 6px rgba(0,0,0,0.15); padding: 0 20px; min-height: 44px; position: relative; z-index: 1000; }
+    .navbar button { background: var(--da-green); border: none; color: white; font-size: 13px; margin: 0 4px; cursor: pointer; padding: 6px 12px; border-radius: 4px; transition: background 0.18s; }
+    .navbar button:hover { background: #228b22; }
+    .navbar button.active { background: #228b22; }
+    .submenu {
+  display: none;
+  position: absolute;
+  background: var(--da-green);
+  padding: 6px;
+  border-radius: 6px;
+  z-index: 9999;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+}
+
+/* Buttons inside submenu */
+.submenu button {
+  display: block;
+  width: 220px;
+  margin: 4px 0;
+  text-align: left;
+  background: var(--da-green);
+  border: none;
+  padding: 6px 10px;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+/* Hover/Active effect */
+.submenu button:hover,
+.submenu button.active {
+  background: #228b22;
+}
+
+/* Nested (sub-submenu) styling */
+.nested-submenu {
+  display: none;
+  background: #228b22;
+  margin-left: 10px;
+  border-radius: 4px;
+  padding: 4px;
+}
+
+.nested-submenu button {
+  width: 200px;
+  background: #e0dba6;
+}
+
+.nested-submenu button:hover {
+  background: #2fa92f;
+}
+    .iframe-wrapper { width: 850px; height: 650px; overflow: hidden; position: relative; border: 1px solid var(--da-green); margin: 20px auto; z-index: 1; border-radius: 6px; display:none; }
+    .iframe-wrapper iframe { position: absolute; top: -140px; left: -345px; width: 1200px; height: 900px; border: none; z-index: 1; }
+    .footer-logo { display: flex; justify-content: flex-end; padding: 10px 30px 0 0; }
+    .footer-logo img { height: 80px; }
+    footer { background-color: var(--da-green); color: white; padding: 0 30px; min-height: 44px; display: flex; align-items: center; text-align: left; font-size: 14px; }
+    .footer-left { font-size: 14px; font-style: italic; font-weight: bold; }
+    .footer-left a { color: #fff; text-decoration: none; margin-right: 15px; }
+
+    /* Home Page Styling */
+    .section-title {
+      background: var(--light-yellow);
+      padding: 8px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: bold;
+    }
+   .datetime-display {
+    text-align: center;
+    color: var(--da-green);
+    font-size: 13px;
+    font-weight: bold;
+    margin-top: 6px;
+    }
+
+    .main-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin: 20px; }
+    .top-stories { border: 1px solid var(--da-green); border-radius: 6px; padding: 10px; }
+    .top-stories h3 { background: var(--da-green); color: white; margin: -10px -10px 10px -10px; padding: 6px; border-radius: 6px 6px 0 0; }
+    .top-stories ul { list-style: none; padding: 0; margin: 0; }
+    .top-stories li { margin-bottom: 10px; font-size: 14px; }
+    .amad-action { border: 1px solid var(--da-green); border-radius: 6px; padding: 10px; text-align: center; }
+    .amad-action h3 { background: var(--da-green); color: white; margin: -10px -10px 10px -10px; padding: 6px; border-radius: 6px 6px 0 0; }
+    .amad-action img { max-width: 100%; border-radius: 4px; margin-bottom: 10px; }
+
+    @media (max-width: 900px) {
+      .iframe-wrapper { width: 95%; height: 500px; }
+      .header-left img { height: 48px; }
+      .footer-logo img { height: 60px; }
+      .main-grid { grid-template-columns: 1fr; }
+      .carousel-item { min-width: 220px; max-width: 220px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="top-strip"></div>
+  <div class="yellow-strip"></div>
+  <div class="header">
+    <div class="header-left">
+      <img src="https://raw.githubusercontent.com/amadnuevedpi/DA-AMAD-BP-logos/main/bag%20pil.png" alt="Bagong Pilipinas">
+      <img src="https://raw.githubusercontent.com/amadnuevedpi/DA-AMAD-BP-logos/main/da.png" alt="Department of Agriculture">
+      <div class="address">
+        <strong>Department of Agriculture</strong><br><strong>AGRIBUSINESS MARKETING ASSISTANCE DIVISION</strong><br> Regional Field Office IX<br> Lenienza St., Pagadian City
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="search-box">
+        <input type="text" placeholder="Search...">
+        <button>🔍</button>
+        <div id="datetime" class="datetime-display"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="title-bar">
+    <h1>ZAMPEN PRICE WATCH</h1>
+  </div>
+
+  <!-- Navbar -->
+<div class="navbar">
+  <!-- ABOUT AMAD Main -->
+  <button id="aboutAmadBtn" onclick="toggleAmadSubmenu(event)">ABOUT AMAD ▾</button>
+
+  <!-- AMAD Submenu -->
+  <div id="amadSubmenu" class="submenu" aria-hidden="true">
+    
+    <!-- APS -->
+    <button class="has-children" onclick="toggleNestedSubmenu(event, 'apsSubmenu')">
+      Agribusiness Promotion Section (APS) ▾
+    </button>
+    <div id="apsSubmenu" class="nested-submenu">
+      <button onclick="setSubActive(this); loadReport('')">Sagip Saka</button>
+      <button onclick="setSubActive(this); loadReport('')">Young Farmers Challenge (YFC)</button>
+    </div>
+
+    <!-- AISS -->
+    <button class="has-children" onclick="toggleNestedSubmenu(event, 'aissSubmenu')">
+      Agribusiness Industry Support Section (AISS) ▾
+    </button>
+    <div id="aissSubmenu" class="nested-submenu">
+      <button onclick="setSubActive(this); loadReport('')">FFEDIS</button>
+      <button onclick="setSubActive(this); loadReport('')">Digital Agriculture Project (DAP)</button>
+    </div>
+
+    <!-- MDS -->
+    <button class="has-children" onclick="toggleNestedSubmenu(event, 'mdsSubmenu')">
+      Market Development Section (MDS) ▾
+    </button>
+    <div id="mdsSubmenu" class="nested-submenu">
+      <button onclick="setSubActive(this); loadReport('')">Kadiwa ng Pangulo</button>
+      <button onclick="setSubActive(this); loadReport('')">Kadiwa Pop-Up Store</button>
+    </div>
+  </div>
+
+  <!-- Existing Buttons -->
+  <button onclick="setActive(this); loadReport('')" class="active">HOME</button>
+  <button onclick="window.open('https://script.google.com/macros/s/AKfycbySxf-4RG-CjIPHuAnS6K-lq9gCiogm6Cf-1knA9bLIgl2rK4QdxOCii4WQ-836-KOD/exec','_blank')">
+    UPDATE PRICES
+  </button>
+  <button id="priceStatsBtn" onclick="toggleSubmenu(event)">PRICE STATISTICS ▾</button>
+
+  <!-- PRICE STATISTICS Submenu -->
+  <div id="submenu" class="submenu" aria-hidden="true">
+    <button onclick="setSubActive(this); loadReport('https://lookerstudio.google.com/embed/reporting/4b4b037d-9610-4abb-8888-ffb8e8bbd4e4/page/p_pknflxucwd')">View Date</button>
+    <button onclick="setSubActive(this); loadReport('https://lookerstudio.google.com/embed/reporting/4b4b037d-9610-4abb-8888-ffb8e8bbd4e4/page/p_kbvahx3cwd')">View Market</button>
+    <button onclick="setSubActive(this); loadReport('https://lookerstudio.google.com/embed/reporting/4b4b037d-9610-4abb-8888-ffb8e8bbd4e4/page/p_pxqisx3cwd')">View Commodity</button>
+  </div>
+
+  <button onclick="setActive(this); loadDPI('https://docs.google.com/spreadsheets/d/e/2PACX-1vT61jbCC9Ufnduo2eIBWV9Lhx5j76r2T0XUrQv0v9jY59yKbEhnTz8g46MSLIkRR3L_iUkAlMFMG1dL/pubhtml?widget=false&chrome=false')">
+    DAILY PRICE INDEX (DPI)
+  </button>
+  <button onclick="setActive(this); loadReport('')">PRICE ADVISORY</button>
+  <button onclick="setActive(this); loadReport('')">DOWNLOADS</button>
+</div>
+
+  <!-- Home Content -->
+  <div id="homeContent" class="home-content" style="display:block;">
+ 
+
+  <!-- AMAD Ganap -->
+<div class="amad-ganap">
+  <h2 class="section-title">AMAD Ganap - Alamin at Monitor ang mga Aktibidad Dito</h2>
+  <div class="carousel" id="carousel"></div>
+</div>
+
+<style>
+  /* Carousel with auto scroll */
+  .carousel {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    padding: 10px;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+  .carousel::-webkit-scrollbar {
+    display: none;
+  }
+  .carousel-item {
+    background: #f8f8f8;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    min-width: 280px;
+    max-width: 280px;
+    text-align: center;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .carousel-item img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    display: block;
+  }
+  .carousel-item p {
+    margin: 0;
+    padding: 10px;
+    font-size: 14px;
+    background: #fff;
+    flex: 0 0 auto;
+  }
+</style>
+
+<script>
+  const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnaFFCj_G9ZdXKegDDsiIWXfv2JZUEfkNW6nEbhIiOMuLlfykrIMOuJ5gXDyAmFrIVv4WGViijMvNU/pub?gid=0&single=true&output=csv";
+
+  function parseCSV(text) {
+    const rows = [];
+    let cur = '';
+    let row = [];
+    let inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (inQuotes) {
+        if (ch === '"') {
+          if (text[i + 1] === '"') {
+            cur += '"';
+            i++;
+          } else {
+            inQuotes = false;
+          }
+        } else {
+          cur += ch;
+        }
+      } else {
+        if (ch === '"') {
+          inQuotes = true;
+        } else if (ch === ',') {
+          row.push(cur);
+          cur = '';
+        } else if (ch === '\r') {
+        } else if (ch === '\n') {
+          row.push(cur);
+          cur = '';
+          rows.push(row);
+          row = [];
+        } else {
+          cur += ch;
+        }
+      }
+    }
+    if (cur !== '' || row.length) {
+      row.push(cur);
+      rows.push(row);
+    }
+    return rows;
+  }
+
+  fetch(sheetUrl)
+    .then(res => res.text())
+    .then(csvText => {
+      const parsed = parseCSV(csvText);
+      const carousel = document.getElementById("carousel");
+      carousel.innerHTML = "";
+
+      // Loop all rows (starting from row 1 since no headers)
+      parsed.forEach((row, i) => {
+        const action = (row[1] || "").trim(); // Column B
+        const imgUrl = (row[2] || "").trim(); // Column C
+
+        if (!action) return; // skip blank rows
+
+        const item = document.createElement("div");
+        item.className = "carousel-item";
+
+        const img = document.createElement("img");
+        img.src = imgUrl || "https://via.placeholder.com/280x160";
+        img.alt = action.substring(0, 60);
+
+        const p = document.createElement("p");
+        p.textContent = action;
+
+        item.appendChild(img);
+        item.appendChild(p);
+        carousel.appendChild(item);
+      });
+
+      // Auto-scroll with pause on hover
+      let scrollInterval;
+      function startScroll() {
+        scrollInterval = setInterval(() => {
+          if (carousel.scrollWidth > carousel.clientWidth) {
+            carousel.scrollLeft += 1;
+            if (carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth) {
+              carousel.scrollLeft = 0; // loop
+            }
+          }
+        }, 30);
+      }
+      function stopScroll() {
+        clearInterval(scrollInterval);
+      }
+      carousel.addEventListener("mouseenter", stopScroll);
+      carousel.addEventListener("mouseleave", startScroll);
+      startScroll();
+    })
+    .catch(err => console.error("Error loading AMAD Ganap CSV:", err));
+</script>
+
+  <!-- Main Content Area -->
+  <div class="main-grid">
+
+    <!-- Top Stories -->
+    <div class="top-stories">
+      <h3>TOP STORIES</h3>
+      <ul class="stories-list">
+        <li>
+          <strong>Training on Coco Coir Product Processing niadtong Septembre 15-16, 2025</strong><br>
+          <small>September 15-16, 2025</small>
+        </li>
+        <li>
+          <strong>𝗥𝗲𝗴𝗶𝗼𝗻𝗮𝗹 𝗙𝗿𝘂𝗶𝘁 𝗮𝗻𝗱 𝗩𝗲𝗴𝗲𝘁𝗮𝗯𝗹𝗲 𝗣𝗿𝗼𝗺𝗼𝘁𝗶𝗼𝗻 𝗮𝗻𝗱 𝗘𝘅𝗽𝗼𝘀𝗶𝘁𝗶𝗼𝗻</strong><br>
+          <small>September 23, 2025</small>
+        </li>
+        <li>
+          <strong>Php84-M Cacao Processing & Marketing Enterprise of MIFAMCO</strong><br>
+          <small>September 16, 2025</small>
+        </li>
+        <li>
+          <strong>Training on Crafting of Project Proposal.</strong><br>
+          <small>September 18-19, 2025</small>
+        </li>
+        <li>
+          <strong>𝗗𝗲𝗽𝗮𝗿𝘁𝗺𝗲𝗻𝘁 𝗼𝗳 𝗔𝗴𝗿𝗶𝗰𝘂𝗹𝘁𝘂𝗿𝗲–𝗔𝗠𝗔𝗗 ug sa 𝗢𝗳𝗳𝗶𝗰𝗲 𝗼𝗳 𝘁𝗵𝗲 𝗣𝗿𝗼𝘃𝗶𝗻𝗰𝗶𝗮𝗹 𝗔𝗴𝗿𝗶𝗰𝘂𝗹𝘁𝘂𝗿𝗶𝘀𝘁, ang 𝗣𝟮𝟬 𝗥𝗶𝗰𝗲 𝗣𝗿𝗼𝗷𝗲𝗰𝘁</strong><br>
+          <small>September 18, 2025</small>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Featured AMAD Action -->
+    <div class="amad-action">
+      <h3>AMAD in ACTION</h3>
+      <img src="https://raw.githubusercontent.com/amadnuevedpi/PICTURES/main/553584111_122212634918048874_4244468006856031363_n.jpg"
+           alt="AMAD in Action" style="max-width:100%; border-radius:6px;">
+      <p><strong>Regional Fruit and Vege</strong></p>
+    </div>
+
+  </div><!-- end main-grid -->
+
+</div><!-- end homeContent -->
+
+
+<style>
+  /* Grid for Top Stories + AMAD Action */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr; /* Top stories wider, AMAD action smaller */
+    gap: 20px;
+    margin-top: 20px;
+  }
+
+  @media (max-width: 768px) {
+    .main-grid {
+      grid-template-columns: 1fr; /* Stack on mobile */
+    }
+  }
+
+  .stories-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .stories-list li {
+    background: #f9f9f9;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+  }
+
+  .stories-list li:hover {
+    background: #e6f4ea;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  }
+
+  .stories-list strong {
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .stories-list small {
+    color: #666;
+    font-size: 0.9em;
+  }
+
+  .amad-action {
+    background: #f9f9f9;
+    padding: 16px;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  }
+</style>
+
+
+<!-- Locker Studio iframe -->
+<div class="iframe-wrapper">
+  <iframe id="reportFrame"></iframe>
+</div>
+
+<!-- ✅ DPI Wrapper (embedded app) -->
+<div class="dpi-iframe-wrapper"
+     style="width:100%; max-width:1000px; height:760px; margin:20px auto;
+            border:1px solid var(--da-green); display:none; border-radius:6px; overflow:hidden;">
+  <iframe id="dpiFrame" style="width:100%; height:100%; border:none;"></iframe>
+</div>
+
+
+  <div class="footer-logo">
+    <img src="https://raw.githubusercontent.com/amadnuevedpi/DA-AMAD-BP-logos/main/ZAMPEN%20VINTA1.png" alt="AMAD ZamPen Logo">
+  </div>
+
+  <div class="yellow-strip"></div>
+
+  <footer>
+    <div class="footer-left">
+      <a href="https://www.facebook.com/amadrfo9" target="_blank" rel="noopener">Facebook: AMAD RFO IX</a>
+      <a href="mailto:amadnueve@gmail.com">Email: amadnueve@gmail.com</a>
+    </div>
+  </footer>
+
+  <script>
+/** ✅ Toggle PRICE STATISTICS Submenu */
+function toggleSubmenu(evt) {
+  evt.stopPropagation();
+  const btn = evt.currentTarget;
+  const submenu = document.getElementById('submenu');
+  const navbar = document.querySelector('.navbar');
+
+  // Toggle visibility
+  if (submenu.style.display === 'block') {
+    submenu.style.display = 'none';
+    submenu.setAttribute('aria-hidden', 'true');
+    return;
+  }
+
+  // Position submenu below button
+  const btnRect = btn.getBoundingClientRect();
+  const navRect = navbar.getBoundingClientRect();
+  const left = btnRect.left - navRect.left;
+  const top = btnRect.bottom - navRect.top + 6;
+  submenu.style.left = left + 'px';
+  submenu.style.top = top + 'px';
+  submenu.style.display = 'block';
+  submenu.setAttribute('aria-hidden', 'false');
+}
+
+/** ✅ Set Active Navbar Button */
+function setActive(button) {
+  document.querySelectorAll('.navbar button').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.submenu button').forEach(btn => btn.classList.remove('active'));
+  button.classList.add('active');
+}
+
+/** ✅ Set Active Submenu Button */
+function setSubActive(button) {
+  document.querySelectorAll('.navbar button').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.submenu button').forEach(btn => btn.classList.remove('active'));
+  button.classList.add('active');
+}
+
+/* ----------------------------- */
+/* ✅ NEW ABOUT AMAD FUNCTIONS   */
+/* ----------------------------- */
+
+/** ✅ Toggle ABOUT AMAD main submenu */
+function toggleAmadSubmenu(event) {
+  event.stopPropagation();
+  const submenu = document.getElementById('amadSubmenu');
+  const btn = event.currentTarget;
+  const navbar = document.querySelector('.navbar');
+
+  // Toggle display
+  if (submenu.style.display === 'block') {
+    submenu.style.display = 'none';
+    submenu.setAttribute('aria-hidden', 'true');
+    return;
+  }
+
+  // Position below ABOUT AMAD button
+  const btnRect = btn.getBoundingClientRect();
+  const navRect = navbar.getBoundingClientRect();
+  const left = btnRect.left - navRect.left;
+  const top = btnRect.bottom - navRect.top + 6;
+
+  submenu.style.left = left + 'px';
+  submenu.style.top = top + 'px';
+  submenu.style.display = 'block';
+  submenu.setAttribute('aria-hidden', 'false');
+}
+
+/** ✅ Toggle nested APS/AISS/MDS sections */
+function toggleNestedSubmenu(event, id) {
+  event.stopPropagation();
+  const submenu = document.getElementById(id);
+  const isOpen = submenu.style.display === 'block';
+
+  // Close all first
+  document.querySelectorAll('.nested-submenu').forEach(el => (el.style.display = 'none'));
+
+  // Then toggle selected
+  submenu.style.display = isOpen ? 'none' : 'block';
+  submenu.setAttribute('aria-hidden', isOpen ? 'true' : 'false');
+}
+
+/** ✅ Close both ABOUT AMAD and PRICE STATISTICS when clicking outside */
+window.addEventListener('click', e => {
+  // ABOUT AMAD
+  const amadBtn = document.getElementById('aboutAmadBtn');
+  const amadSub = document.getElementById('amadSubmenu');
+  if (
+    amadSub &&
+    amadSub.style.display === 'block' &&
+    !amadBtn.contains(e.target) &&
+    !amadSub.contains(e.target)
+  ) {
+    amadSub.style.display = 'none';
+  }
+
+  // PRICE STATISTICS
+  const priceBtn = document.getElementById('priceStatsBtn');
+  const priceSub = document.getElementById('submenu');
+  if (
+    priceSub &&
+    priceSub.style.display === 'block' &&
+    !priceBtn.contains(e.target) &&
+    !priceSub.contains(e.target)
+  ) {
+    priceSub.style.display = 'none';
+  }
+});
+
+  /** ✅ Load Report or Home */
+  function loadReport(url) {
+    const iframeWrapper = document.querySelector(".iframe-wrapper");
+    const homeContent = document.getElementById("homeContent");
+    const dpiWrapper = document.querySelector(".dpi-iframe-wrapper");
+    const frame = document.getElementById("reportFrame");
+
+    // If no URL → show Home
+    if (!url || url.trim() === "") {
+      homeContent.style.display = "block";
+      iframeWrapper.style.display = "none";
+      dpiWrapper.style.display = "none";
+
+      localStorage.setItem("activeSection", "home");
+      return;
+    }
+
+    // Otherwise show report
+    homeContent.style.display = "none";
+    dpiWrapper.style.display = "none";
+    iframeWrapper.style.display = "block";
+
+    frame.src = url;
+    localStorage.setItem("activeSection", "report");
+    localStorage.setItem("reportFrameUrl", url);
+
+    // Hide submenu if open
+    const submenu = document.getElementById('submenu');
+    submenu.style.display = "none";
+    submenu.setAttribute("aria-hidden", "true");
+  }
+
+  /** ✅ Load Daily Price Index App */
+  function loadDPI() {
+    const iframeWrapper = document.querySelector(".dpi-iframe-wrapper");
+    const homeContent = document.getElementById("homeContent");
+    const reportWrapper = document.querySelector(".iframe-wrapper");
+
+    // Hide others
+    homeContent.style.display = "none";
+    reportWrapper.style.display = "none";
+
+    // Show DPI
+    iframeWrapper.style.display = "block";
+
+    // Load only once
+    const dpiFrame = document.getElementById("dpiFrame");
+    if (!dpiFrame.src) {
+      dpiFrame.src = "https://amadnuevedpi.github.io/DPI-Report/dpireport.html";
+    }
+
+    // Save state
+    localStorage.setItem("activeSection", "dpi");
+    localStorage.setItem("dpiFrameUrl", dpiFrame.src);
+
+    // Hide submenu
+    const submenu = document.getElementById('submenu');
+    if (submenu) {
+      submenu.style.display = 'none';
+      submenu.setAttribute('aria-hidden', 'true');
+    }
+  }
+
+  /** ✅ Hide submenu when clicking outside */
+  window.addEventListener('click', function (e) {
+    const submenu = document.getElementById('submenu');
+    if (submenu && submenu.style.display === 'block') {
+      const priceBtn = document.getElementById('priceStatsBtn');
+      if (!priceBtn.contains(e.target) && !submenu.contains(e.target)) {
+        submenu.style.display = 'none';
+        submenu.setAttribute('aria-hidden', 'true');
+      }
+    }
+  });
+
+  /** ✅ Restore Active State on Reload */
+  document.addEventListener("DOMContentLoaded", function () {
+    const homeContent = document.getElementById("homeContent");
+    const dpiWrapper = document.querySelector(".dpi-iframe-wrapper");
+    const iframeWrapper = document.querySelector(".iframe-wrapper");
+    const dpiFrame = document.getElementById("dpiFrame");
+    const reportFrame = document.getElementById("reportFrame");
+
+    const lastState = localStorage.getItem("activeSection");
+
+    if (lastState === "dpi") {
+      homeContent.style.display = "none";
+      iframeWrapper.style.display = "none";
+      dpiWrapper.style.display = "block";
+      const lastUrl = localStorage.getItem("dpiFrameUrl");
+      if (lastUrl) dpiFrame.src = lastUrl;
+    } else if (lastState === "report") {
+      homeContent.style.display = "none";
+      dpiWrapper.style.display = "none";
+      iframeWrapper.style.display = "block";
+      const lastUrl = localStorage.getItem("reportFrameUrl");
+      if (lastUrl) reportFrame.src = lastUrl;
+    } else {
+      // Default → Home
+      homeContent.style.display = "block";
+      iframeWrapper.style.display = "none";
+      dpiWrapper.style.display = "none";
+    }
+  });
+
+// ✅ Live Date & Time Display
+function updateDateTime() {
+  const dtElem = document.getElementById("datetime");
+  if (!dtElem) return;
+
+  const now = new Date();
+  const options = {
+    year: "numeric", month: "long", day: "numeric",
+    hour: "2-digit", minute: "2-digit", second: "2-digit",
+    hour12: true,
+    timeZone: "Asia/Manila"
+  };
+  dtElem.textContent = new Intl.DateTimeFormat("en-PH", options).format(now);
+}
+
+// Update every second
+updateDateTime();
+setInterval(updateDateTime, 1000);
+
+  </script>
+</body>
+</html>
