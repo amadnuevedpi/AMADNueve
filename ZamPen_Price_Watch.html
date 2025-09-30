@@ -209,47 +209,109 @@
 </div>
 
 <style>
-  /* Carousel with auto scroll */
+  /* 🎠 Carousel Wrapper */
+  .carousel-container {
+    position: relative;
+    overflow: hidden;
+    padding: 20px 0;
+    background: #f7f9fb;
+  }
+
+  /* 🎠 Carousel Track */
   .carousel {
     display: flex;
-    gap: 10px;
+    gap: 18px;
     overflow-x: auto;
-    padding: 20px;
-    -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    padding: 0 50px;
+    scroll-snap-type: x mandatory;
   }
+
   .carousel::-webkit-scrollbar {
     display: none;
   }
+
+  /* 🎴 Carousel Item */
   .carousel-item {
-    background: #f8f8f8;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    min-width: 280px;
-    max-width: 280px;
-    text-align: center;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
+    flex: 0 0 360px; /* Slightly wider */
+    border-radius: 12px;
+    position: relative;
     overflow: hidden;
-    flex-shrink: 0;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    background: #fff;
+    scroll-snap-align: start;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
+
+  .carousel-item:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.18);
+  }
+
+  /* 🖼️ Larger Image */
   .carousel-item img {
     width: 100%;
-    height: 160px;
+    height: 260px; /* Increased from 180px */
     object-fit: cover;
     display: block;
   }
-  .carousel-item p {
-    margin: 0;
-    padding: 10px;
-    font-size: 14px;
+
+  /* 📝 Overlay Caption */
+  .carousel-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(11, 102, 35, 0.9), rgba(11, 102, 35, 0.4));
+    color: #fff;
+    font-weight: 600;
+    text-align: center;
+    padding: 14px 10px;
+    font-size: 16px;
+  }
+
+  /* 📄 Description (Optional) */
+  .carousel-desc {
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #333;
     background: #fff;
-    flex: 0 0 auto;
+  }
+
+  /* ⬅️➡️ Nav Arrows */
+  .carousel-btn {
+    position: absolute;
+    top: 45%;
+    transform: translateY(-50%);
+    background: var(--da-green, #0b6623);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    cursor: pointer;
+    z-index: 10;
+    font-size: 20px;
+    opacity: 0.9;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+  }
+
+  .carousel-btn:hover {
+    background: #228b22;
+  }
+
+  .carousel-btn.prev {
+    left: 10px;
+  }
+
+  .carousel-btn.next {
+    right: 10px;
   }
 </style>
 
-    <!-- ✅ Carousel HTML -->
+<!-- ✅ Carousel HTML -->
 <div class="carousel-container">
   <button class="carousel-btn prev" onclick="scrollCarousel(-1)">&#10094;</button>
 
@@ -286,14 +348,14 @@
   /** 🌀 Carousel Scroll Control **/
   function scrollCarousel(direction) {
     const carousel = document.getElementById('carousel');
-    const scrollAmount = 340; // Adjust to match item width + gap
+    const scrollAmount = 380; // Adjusted for new width
     carousel.scrollBy({
       left: direction * scrollAmount,
       behavior: 'smooth'
     });
   }
 
-  /** 🔁 Auto-scroll every few seconds **/
+  /** 🔁 Auto-scroll every 6s **/
   setInterval(() => scrollCarousel(1), 6000);
 </script>
     
@@ -662,4 +724,5 @@ setInterval(updateDateTime, 1000);
   </script>
 </body>
 </html>
+
 
