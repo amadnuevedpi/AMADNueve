@@ -192,7 +192,7 @@
     DAILY PRICE INDEX (DPI)
   </button>
   <button onclick="setActive(this); loadReport('')">PRICE ADVISORY</button>
-  <button onclick="setActive(this); loadReport('')">DOWNLOADS</button>
+  <button onclick="setActive(this); loadDownloads()">DOWNLOADS</button>
 </div>
 
   <!-- Home Content -->
@@ -498,6 +498,7 @@
   <iframe id="dpiFrame" style="width:100%; height:100%; border:none;"></iframe>
 </div>
 
+  
 
   <div class="footer-logo">
     <img src="https://raw.githubusercontent.com/amadnuevedpi/DA-AMAD-BP-logos/main/ZAMPEN%20VINTA1.png" alt="AMAD ZamPen Logo">
@@ -674,59 +675,135 @@ window.addEventListener('click', e => {
       dpiFrame.src = "https://amadnuevedpi.github.io/DPI-Report/dpireport.html";
     }
 
-    // Save state
+    /** ✅ Load Downloads Section */
+   function loadDownloads() {
+  const iframeWrapper = document.querySelector(".iframe-wrapper");
+  const homeContent = document.getElementById("homeContent");
+  const dpiWrapper = document.querySelector(".dpi-iframe-wrapper");
+  const frame = document.getElementById("reportFrame");
+
+  // Hide other sections
+  homeContent.style.display = "none";
+  dpiWrapper.style.display = "none";
+  iframeWrapper.style.display = "block";
+
+  // Load your Downloads page from GitHub Pages
+  frame.src = "https://amadnuevedpi.github.io/DPI-Report/Downloads.html";
+
+     
+/** ✅ Handle Section Switching & State Saving */
+function showSection(section, frameUrl = "") {
+  const homeContent = document.getElementById("homeContent");
+  const dpiWrapper = document.querySelector(".dpi-iframe-wrapper");
+  const iframeWrapper = document.querySelector(".iframe-wrapper");
+  const submenu = document.getElementById("submenu");
+
+  // Hide all sections first
+  homeContent.style.display = "none";
+  dpiWrapper.style.display = "none";
+  iframeWrapper.style.display = "none";
+  if (submenu) submenu.style.display = "none";
+
+  // Show selected section
+  if (section === "downloads") {
+    iframeWrapper.style.display = "block";
+    const reportFrame = document.getElementById("reportFrame");
+    if (frameUrl) reportFrame.src = frameUrl;
+
+    localStorage.setItem("activeSection", "downloads");
+    localStorage.setItem("downloadsFrameUrl", frameUrl);
+
+  } else if (section === "dpi") {
+    dpiWrapper.style.display = "block";
+    const dpiFrame = document.getElementById("dpiFrame");
+    if (frameUrl) dpiFrame.src = frameUrl;
+
     localStorage.setItem("activeSection", "dpi");
-    localStorage.setItem("dpiFrameUrl", dpiFrame.src);
+    localStorage.setItem("dpiFrameUrl", frameUrl);
 
-    // Hide submenu
-    const submenu = document.getElementById('submenu');
-    if (submenu) {
-      submenu.style.display = 'none';
-      submenu.setAttribute('aria-hidden', 'true');
-    }
+  } else if (section === "report") {
+    iframeWrapper.style.display = "block";
+    const reportFrame = document.getElementById("reportFrame");
+    if (frameUrl) reportFrame.src = frameUrl;
+
+    localStorage.setItem("activeSection", "report");
+    localStorage.setItem("reportFrameUrl", frameUrl);
+
+  } else if (section === "submenu") {
+    if (submenu) submenu.style.display = "block";
+
+    localStorage.setItem("activeSection", "submenu");
+  } else {
+    // 🏠 Default → Home
+    homeContent.style.display = "block";
+    localStorage.removeItem("activeSection");
   }
+}
 
-  /** ✅ Hide submenu when clicking outside */
-  window.addEventListener('click', function (e) {
-    const submenu = document.getElementById('submenu');
-    if (submenu && submenu.style.display === 'block') {
-      const priceBtn = document.getElementById('priceStatsBtn');
-      if (!priceBtn.contains(e.target) && !submenu.contains(e.target)) {
-        submenu.style.display = 'none';
-        submenu.setAttribute('aria-hidden', 'true');
-      }
-    }
-  });
+/** ✅ Hide submenu when clicking outside */
+window.addEventListener("click", function (e) {
+  const submenu = document.getElementById("submenu");
+  const priceBtn = document.getElementById("priceStatsBtn");
+  if (
+    submenu &&
+    submenu.style.display === "block" &&
+    !priceBtn.contains(e.target) &&
+    !submenu.contains(e.target)
+  ) {
+    submenu.style.display = "none";
+    submenu.setAttribute("aria-hidden", "true");
+  }
+});
 
-  /** ✅ Restore Active State on Reload */
-  document.addEventListener("DOMContentLoaded", function () {
+/** ✅ Restore last state when refreshing tab */
+document.addEventListener("DOMContentLoaded", function () {
+  const lastState = localStorage.getItem("activeSection");
+
+  // 🟢 Restore only on refresh, not new tab
+  if (performance.getEntriesByType("navigation")[0]?.type === "reload") {
     const homeContent = document.getElementById("homeContent");
     const dpiWrapper = document.querySelector(".dpi-iframe-wrapper");
     const iframeWrapper = document.querySelector(".iframe-wrapper");
     const dpiFrame = document.getElementById("dpiFrame");
     const reportFrame = document.getElementById("reportFrame");
 
-    const lastState = localStorage.getItem("activeSection");
+    if (lastState === "downloads") {
+      homeContent.style.display = "none";
+      dpiWrapper.style.display = "none";
+      iframeWrapper.style.display = "block";
+      const lastUrl = localStorage.getItem("downloadsFrameUrl");
+      if (lastUrl && reportFrame) reportFrame.src = lastUrl;
 
-    if (lastState === "dpi") {
+    } else if (lastState === "dpi") {
       homeContent.style.display = "none";
       iframeWrapper.style.display = "none";
       dpiWrapper.style.display = "block";
       const lastUrl = localStorage.getItem("dpiFrameUrl");
-      if (lastUrl) dpiFrame.src = lastUrl;
+      if (lastUrl && dpiFrame) dpiFrame.src = lastUrl;
+
     } else if (lastState === "report") {
       homeContent.style.display = "none";
       dpiWrapper.style.display = "none";
       iframeWrapper.style.display = "block";
       const lastUrl = localStorage.getItem("reportFrameUrl");
-      if (lastUrl) reportFrame.src = lastUrl;
-    } else {
-      // Default → Home
-      homeContent.style.display = "block";
-      iframeWrapper.style.display = "none";
+      if (lastUrl && reportFrame) reportFrame.src = lastUrl;
+
+    } else if (lastState === "submenu") {
+      homeContent.style.display = "none";
       dpiWrapper.style.display = "none";
+      iframeWrapper.style.display = "none";
+      const submenu = document.getElementById("submenu");
+      if (submenu) submenu.style.display = "block";
+
+    } else {
+      homeContent.style.display = "block";
     }
-  });
+  } else {
+    // 🏠 New session always starts at home
+    localStorage.removeItem("activeSection");
+    homeContent.style.display = "block";
+  }
+});
 
 // ✅ Live Date & Time Display
 function updateDateTime() {
@@ -750,6 +827,7 @@ setInterval(updateDateTime, 1000);
   </script>
 </body>
 </html>
+
 
 
 
