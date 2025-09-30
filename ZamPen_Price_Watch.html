@@ -65,11 +65,11 @@
 
 .nested-submenu button {
   width: 200px;
-  background: #e0dba6;
+  background: #2fa92f;
 }
 
 .nested-submenu button:hover {
-  background: #2fa92f;
+  background: #e0dba6;
 }
     .iframe-wrapper { width: 850px; height: 650px; overflow: hidden; position: relative; border: 1px solid var(--da-green); margin: 20px auto; z-index: 1; border-radius: 6px; display:none; }
     .iframe-wrapper iframe { position: absolute; top: -140px; left: -345px; width: 1200px; height: 900px; border: none; z-index: 1; }
@@ -142,7 +142,11 @@
   <!-- ABOUT AMAD Main -->
   <button id="aboutAmadBtn" onclick="toggleAmadSubmenu(event)">ABOUT AMAD ▾</button>
 
-  <!-- AMAD Submenu -->
+
+  <!-- Existing Buttons -->
+  <button onclick="setActive(this); loadReport('')" class="active">HOME</button>
+
+   <!-- AMAD Submenu -->
   <div id="amadSubmenu" class="submenu" aria-hidden="true">
     
     <!-- APS -->
@@ -172,14 +176,14 @@
       <button onclick="setSubActive(this); loadReport('')">Kadiwa Pop-Up Store</button>
     </div>
   </div>
-
-  <!-- Existing Buttons -->
-  <button onclick="setActive(this); loadReport('')" class="active">HOME</button>
+  
   <button onclick="window.open('https://script.google.com/macros/s/AKfycbySxf-4RG-CjIPHuAnS6K-lq9gCiogm6Cf-1knA9bLIgl2rK4QdxOCii4WQ-836-KOD/exec','_blank')">
     UPDATE PRICES
   </button>
+  
   <button id="priceStatsBtn" onclick="toggleSubmenu(event)">PRICE STATISTICS ▾</button>
 
+  
   <!-- PRICE STATISTICS Submenu -->
   <div id="submenu" class="submenu" aria-hidden="true">
     <button onclick="setSubActive(this); loadReport('https://lookerstudio.google.com/embed/reporting/4b4b037d-9610-4abb-8888-ffb8e8bbd4e4/page/p_pknflxucwd')">View Date</button>
@@ -208,9 +212,9 @@
   /* Carousel with auto scroll */
   .carousel {
     display: flex;
-    gap: 15px;
+    gap: 10px;
     overflow-x: auto;
-    padding: 10px;
+    padding: 20px;
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
   }
@@ -245,101 +249,55 @@
   }
 </style>
 
-<script>
-  const sheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRnaFFCj_G9ZdXKegDDsiIWXfv2JZUEfkNW6nEbhIiOMuLlfykrIMOuJ5gXDyAmFrIVv4WGViijMvNU/pub?gid=0&single=true&output=csv";
+    <!-- ✅ Carousel HTML -->
+<div class="carousel-container">
+  <button class="carousel-btn prev" onclick="scrollCarousel(-1)">&#10094;</button>
 
-  function parseCSV(text) {
-    const rows = [];
-    let cur = '';
-    let row = [];
-    let inQuotes = false;
-    for (let i = 0; i < text.length; i++) {
-      const ch = text[i];
-      if (inQuotes) {
-        if (ch === '"') {
-          if (text[i + 1] === '"') {
-            cur += '"';
-            i++;
-          } else {
-            inQuotes = false;
-          }
-        } else {
-          cur += ch;
-        }
-      } else {
-        if (ch === '"') {
-          inQuotes = true;
-        } else if (ch === ',') {
-          row.push(cur);
-          cur = '';
-        } else if (ch === '\r') {
-        } else if (ch === '\n') {
-          row.push(cur);
-          cur = '';
-          rows.push(row);
-          row = [];
-        } else {
-          cur += ch;
-        }
-      }
-    }
-    if (cur !== '' || row.length) {
-      row.push(cur);
-      rows.push(row);
-    }
-    return rows;
+  <div class="carousel" id="carousel">
+    <div class="carousel-item">
+      <img src="https://source.unsplash.com/featured/?farm" alt="Agriculture">
+      <div class="carousel-caption">Agribusiness Promotion</div>
+      <div class="carousel-desc">Empowering farmers through enterprise development and market linkages.</div>
+    </div>
+
+    <div class="carousel-item">
+      <img src="https://source.unsplash.com/featured/?market" alt="Market">
+      <div class="carousel-caption">Market Development</div>
+      <div class="carousel-desc">Connecting producers to consumers via Kadiwa and pop-up stores.</div>
+    </div>
+
+    <div class="carousel-item">
+      <img src="https://source.unsplash.com/featured/?farmers" alt="Farmers">
+      <div class="carousel-caption">Young Farmers Challenge</div>
+      <div class="carousel-desc">Encouraging youth participation in agriculture innovation and agripreneurship.</div>
+    </div>
+
+    <div class="carousel-item">
+      <img src="https://source.unsplash.com/featured/?technology" alt="Technology">
+      <div class="carousel-caption">Digital Agriculture Project</div>
+      <div class="carousel-desc">Harnessing ICT to improve agricultural efficiency and productivity.</div>
+    </div>
+  </div>
+
+  <button class="carousel-btn next" onclick="scrollCarousel(1)">&#10095;</button>
+</div>
+
+<script>
+  /** 🌀 Carousel Scroll Control **/
+  function scrollCarousel(direction) {
+    const carousel = document.getElementById('carousel');
+    const scrollAmount = 340; // Adjust to match item width + gap
+    carousel.scrollBy({
+      left: direction * scrollAmount,
+      behavior: 'smooth'
+    });
   }
 
-  fetch(sheetUrl)
-    .then(res => res.text())
-    .then(csvText => {
-      const parsed = parseCSV(csvText);
-      const carousel = document.getElementById("carousel");
-      carousel.innerHTML = "";
-
-      // Loop all rows (starting from row 1 since no headers)
-      parsed.forEach((row, i) => {
-        const action = (row[1] || "").trim(); // Column B
-        const imgUrl = (row[2] || "").trim(); // Column C
-
-        if (!action) return; // skip blank rows
-
-        const item = document.createElement("div");
-        item.className = "carousel-item";
-
-        const img = document.createElement("img");
-        img.src = imgUrl || "https://via.placeholder.com/280x160";
-        img.alt = action.substring(0, 60);
-
-        const p = document.createElement("p");
-        p.textContent = action;
-
-        item.appendChild(img);
-        item.appendChild(p);
-        carousel.appendChild(item);
-      });
-
-      // Auto-scroll with pause on hover
-      let scrollInterval;
-      function startScroll() {
-        scrollInterval = setInterval(() => {
-          if (carousel.scrollWidth > carousel.clientWidth) {
-            carousel.scrollLeft += 1;
-            if (carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth) {
-              carousel.scrollLeft = 0; // loop
-            }
-          }
-        }, 30);
-      }
-      function stopScroll() {
-        clearInterval(scrollInterval);
-      }
-      carousel.addEventListener("mouseenter", stopScroll);
-      carousel.addEventListener("mouseleave", startScroll);
-      startScroll();
-    })
-    .catch(err => console.error("Error loading AMAD Ganap CSV:", err));
+  /** 🔁 Auto-scroll every few seconds **/
+  setInterval(() => scrollCarousel(1), 6000);
 </script>
+    
+
 
   <!-- Main Content Area -->
   <div class="main-grid">
@@ -704,3 +662,4 @@ setInterval(updateDateTime, 1000);
   </script>
 </body>
 </html>
+
