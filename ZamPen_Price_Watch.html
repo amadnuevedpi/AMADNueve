@@ -139,16 +139,13 @@
 
   <!-- Navbar -->
 <div class="navbar">
-  <!-- ABOUT AMAD Main -->
-  <button id="aboutAmadBtn" onclick="toggleAmadSubmenu(event)">ABOUT AMAD ▾</button>
 
-
-  <!-- Existing Buttons -->
+  <!-- HOME Main -->
   <button onclick="setActive(this); loadReport('')" class="active">HOME</button>
 
+  <button id="aboutAmadBtn" onclick="toggleAmadSubmenu(event)">ABOUT AMAD ▾</button>
    <!-- AMAD Submenu -->
   <div id="amadSubmenu" class="submenu" aria-hidden="true">
-    
     <!-- APS -->
     <button class="has-children" onclick="toggleNestedSubmenu(event, 'apsSubmenu')">
       Agribusiness Promotion Section (APS) ▾
@@ -724,6 +721,7 @@ setInterval(updateDateTime, 1000);
   </script>
 </body>
 </html>
+
 
 
 
