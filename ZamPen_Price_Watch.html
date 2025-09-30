@@ -342,19 +342,48 @@
 </div>
 
 <script>
-  /** 🌀 Carousel Scroll Control **/
+  /** 🌀 Carousel Scroll Control (Dynamic Width) **/
   function scrollCarousel(direction) {
     const carousel = document.getElementById('carousel');
-    const scrollAmount = 380; // Adjusted for new width
+    if (!carousel) return;
+
+    // Get first item width + gap
+    const firstItem = carousel.querySelector('.carousel-item');
+    if (!firstItem) return;
+
+    const itemStyle = window.getComputedStyle(firstItem);
+    const itemWidth = firstItem.offsetWidth;
+    const gap = parseFloat(window.getComputedStyle(carousel).gap || 0);
+
+    // Scroll exactly one item width per click
+    const scrollAmount = itemWidth + gap;
+
     carousel.scrollBy({
       left: direction * scrollAmount,
       behavior: 'smooth'
     });
   }
 
-  /** 🔁 Auto-scroll every 6s **/
-  setInterval(() => scrollCarousel(1), 6000);
+  /** 🔁 Auto-scroll every 6 seconds **/
+  let autoScroll;
+  function startAutoScroll() {
+    autoScroll = setInterval(() => scrollCarousel(1), 6000);
+  }
+  function stopAutoScroll() {
+    clearInterval(autoScroll);
+  }
+
+  // Pause auto-scroll on hover (optional)
+  const carouselEl = document.getElementById('carousel');
+  if (carouselEl) {
+    carouselEl.addEventListener('mouseenter', stopAutoScroll);
+    carouselEl.addEventListener('mouseleave', startAutoScroll);
+  }
+
+  // Start auto-scroll
+  startAutoScroll();
 </script>
+
     
 
 
@@ -721,6 +750,7 @@ setInterval(updateDateTime, 1000);
   </script>
 </body>
 </html>
+
 
 
 
